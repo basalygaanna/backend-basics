@@ -27,7 +27,7 @@ weather_code_desc = {
     "95": "Thunderstorm",
     "96": "Thunderstorm with slight hail",
     "97": "Heavy thunderstorm",
-    "99": "Thunderstorm with heavy hail"
+    "99": "Thunderstorm with heavy hail",
 }
 
 
@@ -40,11 +40,22 @@ def is_expensive(rate):
 
 
 def text_description(desc_code):
-    return weather_code_desc.get(str(desc_code), 'Unknown')
+    return weather_code_desc.get(str(desc_code), "Unknown")
 
 
 def take_umbrella(desc_code):
-    return str(desc_code) in ['51', '53', '55', '56', '57', '61', '63', '65', '66',
-                          '67', '80', '81', '82']
-
-
+    return str(desc_code) in [
+        "51",
+        "53",
+        "55",
+        "56",
+        "57",
+        "61",
+        "63",
+        "65",
+        "66",
+        "67",
+        "80",
+        "81",
+        "82",
+    ]

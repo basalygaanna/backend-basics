@@ -1,4 +1,5 @@
 import argparse
+import logging
 import sys
 
 from clients.exceptions import (
@@ -6,6 +7,7 @@ from clients.exceptions import (
     CurrencyNotFound,
     ExternalServiceUnavailable,
 )
+from logger import setup_logging
 from processing.service import build_city_summary
 
 
@@ -28,17 +30,19 @@ def main() -> int:
         print(str(err))
         return 4
 
-    print(f'Город: {summary["city"]}')
+    print(f"Город: {summary['city']}")
     print(
-        f'Погода: {summary["weather"]["temp_c"]}°C, {summary["weather"]["description"]}')
-    print(
-        f'Теплая одежда: {"да" if summary["weather"]["warm_clothes"] else "нет"}')
-    print(f'Нужен зонт: {"да" if summary["weather"]["umbrella"] else "нет"}')
-    print(
-        f'{summary["rates"]["currency"]}->RUB: {summary["rates"]["rate_to_rub"]}')
-    print(f'Дорогой курс: {"да" if summary["rates"]["expensive"] else "нет"}')
+        f"Погода: {summary['weather']['temp_c']}°C, {summary['weather']['description']}"
+    )
+    print(f"Теплая одежда: {'да' if summary['weather']['warm_clothes'] else 'нет'}")
+    print(f"Нужен зонт: {'да' if summary['weather']['umbrella'] else 'нет'}")
+    print(f"{summary['rates']['currency']}->RUB: {summary['rates']['rate_to_rub']}")
+    print(f"Дорогой курс: {'да' if summary['rates']['expensive'] else 'нет'}")
     return 0
 
 
 if __name__ == "__main__":
+    run_id = setup_logging()
+    logger = logging.getLogger(__name__)
+
     sys.exit(main())
