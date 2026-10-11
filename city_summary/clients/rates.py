@@ -1,12 +1,22 @@
-import logging
+import logging, time
 
 from .exceptions import CurrencyNotFound, ExternalServiceUnavailable
 from .http import get_json
 
+
+INTERVAL = 300
+
 logger = logging.getLogger(__name__)
+cache: dict[str, tuple[float, float]] = {}
 
 
 def get_rate(currency) -> float:
+    cur_sec = time.monotonic()
+
+    if cache.get(currency) and cur_sec - cache[currency][1] < INTERVAL:
+        logger.info("currency=%s was taken from cache", currency)
+        return cache[currency][0]
+
     url_rates = f"https://api.frankfurter.dev/v2/rate/{currency}/RUB"
     try:
         rate = get_json(url_rates)
@@ -28,4 +38,8 @@ def get_rate(currency) -> float:
             "CurrencyNotFound"
         )
         raise CurrencyNotFound("Код валюты не найден")
-    return rate.get("rate")
+
+    cache[currency] = (rate['rate'], cur_sec)
+    logger.info("currency=%s was taken from api", currency)
+    return rate['rate']
+
