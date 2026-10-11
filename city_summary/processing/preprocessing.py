@@ -31,19 +31,19 @@ weather_code_desc = {
 }
 
 
-def is_warm_clothes(temp):
+def is_warm_clothes(temp: float) -> bool:
     return temp < 0
 
 
-def is_expensive(rate):
+def is_expensive(rate: float) -> bool:
     return rate > 100
 
 
-def text_description(desc_code):
+def text_description(desc_code: int) -> str:
     return weather_code_desc.get(str(desc_code), "Unknown")
 
 
-def take_umbrella(desc_code):
+def take_umbrella(desc_code: int) -> bool:
     return str(desc_code) in [
         "51",
         "53",

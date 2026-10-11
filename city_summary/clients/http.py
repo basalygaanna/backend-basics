@@ -10,7 +10,7 @@ MAX_ATTEMPTS = 3
 logger = logging.getLogger(__name__)
 
 
-def get_json(url, params=None):
+def get_json(url: str, params: dict | None = None) -> dict:
     for attempt in range(1, MAX_ATTEMPTS + 1):
         delay = 2 ** (attempt - 1) + random.uniform(0, 0.5)
 

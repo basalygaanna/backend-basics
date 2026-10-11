@@ -9,7 +9,7 @@ URL_FORECAST = "https://api.open-meteo.com/v1/forecast"
 logger = logging.getLogger(__name__)
 
 
-def get_weather(city) -> dict:
+def get_weather(city: str) -> dict:
     coordinates = get_json(URL_GEOCODING, {"name": city, "count": 1})
     if not coordinates.get("results"):
         logger.error("url=%s city=%s type=%s", URL_GEOCODING, city, "CityNotFound")

@@ -1,8 +1,8 @@
-import logging, time
+import logging
+import time
 
 from .exceptions import CurrencyNotFound, ExternalServiceUnavailable
 from .http import get_json
-
 
 INTERVAL = 300
 
@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 cache: dict[str, tuple[float, float]] = {}
 
 
-def get_rate(currency) -> float:
+def get_rate(currency: str) -> float:
     cur_sec = time.monotonic()
 
     if cache.get(currency) and cur_sec - cache[currency][1] < INTERVAL:
@@ -34,12 +34,10 @@ def get_rate(currency) -> float:
 
     if not rate:
         logger.error(
-            "url=%s currency=%s type=%s", url_rates, currency,
-            "CurrencyNotFound"
+            "url=%s currency=%s type=%s", url_rates, currency, "CurrencyNotFound"
         )
         raise CurrencyNotFound("Код валюты не найден")
 
-    cache[currency] = (rate['rate'], cur_sec)
+    cache[currency] = (rate["rate"], cur_sec)
     logger.info("currency=%s was taken from api", currency)
-    return rate['rate']
-
+    return rate["rate"]

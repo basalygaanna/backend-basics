@@ -9,7 +9,7 @@ from .preprocessing import (
 )
 
 
-def build_city_summary(city, currency="USD") -> dict:
+def build_city_summary(city: str, currency: str = "USD") -> dict:
     weather = get_weather(city)
     rate = get_rate(currency)
 
