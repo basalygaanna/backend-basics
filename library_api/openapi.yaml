@@ -1,0 +1,875 @@
+openapi: 3.1.0
+info:
+  title: Библиотека
+  version: 1.0.0
+servers:
+  - url: https://api.library.example/v1
+paths:
+  /books:
+    get:
+      operationId: getBookList
+      tags: [Books]
+      summary: Получить список книг
+      description: |
+        Возвращает список всех книг
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: Список книг
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BookList"
+              examples:
+                bookListExample:
+                  summary: Пример списка книг
+                  value:
+                    data:
+                      - id: 42
+                        title: "Проект Аве Мария"
+                        author: "Энди Вейер"
+                        isbn: "9785041234567"
+                        published_year: 2021
+                        total_copies: 5
+                        available_copies: 3
+                      - id: 43
+                        title: "Марсианин"
+                        author: "Энди Вейер"
+                        isbn: "9785047654321"
+                        published_year: 2011
+                        total_copies: 2
+                        available_copies: 0
+                    pagination:
+                      total: 2
+                      limit: 20
+                      offset: 0
+                      has_more: false
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    post:
+      security:
+        - BearerAuth: [ ]
+      operationId: createBook
+      tags: [Books]
+      summary: Создать книгу
+      description: |
+        Создает карточку книги с id и переданным requestBody.
+        Поле available_copies вычисляется сервером.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookRequest"
+            examples:
+              bookCreationExample:
+                summary: Пример создания книги
+                value:
+                  title: "Триумфальная арка"
+                  author: "Эрих Мария Ремарк"
+                  isbn: "9785687234278"
+                  published_year: 1945
+                  total_copies: 19
+      responses:
+        "201":
+          description: Книга создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /books/{id}:
+    get:
+      operationId: getBook
+      summary: Получить книгу по id
+      tags: [Books]
+      description: |
+        Возвращает карточку книги со всеми полями (включая id и available_copies).
+      parameters:
+        - $ref: "#/components/parameters/Book_id"
+      responses:
+        "200":
+          description: Книга найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+              examples:
+                bookExample:
+                  summary: Пример книги
+                  value:
+                    id: 42
+                    title: "Проект Аве Мария"
+                    author: "Энди Вейер"
+                    isbn: "9785041234567"
+                    published_year: 2021
+                    total_copies: 5
+                    available_copies: 3
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      security:
+        - BearerAuth: [ ]
+      operationId: replaceBook
+      tags: [Books]
+      summary: Заменить книгу по id
+      description: |
+        Заменяет все параметры книги на RequestBody
+        id, available_copies не передаются
+      parameters:
+        - $ref: "#/components/parameters/Book_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateBookRequest"
+      responses:
+        "200":
+          description: Книга заменена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    patch:
+      security:
+        - BearerAuth: [ ]
+      operationId: updateBook
+      tags: [Books]
+      summary: Обновить книгу по id
+      description: Меняет выборочные поля в карточке книги на requestBody.
+      parameters:
+        - $ref: "#/components/parameters/Book_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateBookRequest"
+      responses:
+        "200":
+          description: Книга изменена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      security:
+        - BearerAuth: [ ]
+      operationId: deleteBook
+      tags: [Books]
+      summary: Удалить книгу по id
+      description: |
+        Удаляет карточку книги
+        Нельзя удалить книгу с активной выдачей
+      parameters:
+        - $ref: "#/components/parameters/Book_id"
+      responses:
+        "204":
+          description: Книга удалена
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/BusinessRuleViolation"
+  /readers:
+    get:
+      operationId: getReaderList
+      tags: [Readers]
+      summary: Получить список читателей
+      description: Возвращает список всех читателей
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Sort"
+      responses:
+        "200":
+          description: Список читателей
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReaderList"
+              examples:
+                readerListExample:
+                  summary: Пример списка читателей
+                  value:
+                    data:
+                      - id: 7
+                        full_name: "Иванов Иван Иванович"
+                        email: "ivanov@gmail.com"
+                        registered_at: "2025-03-15T10:30:00Z"
+                      - id: 8
+                        full_name: "Петров Петр Петрович"
+                        email: "petrov@gmail.com"
+                        registered_at: "2025-09-01T14:00:00Z"
+                    pagination:
+                      total: 2
+                      limit: 20
+                      offset: 0
+                      has_more: false
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    post:
+      security:
+        - BearerAuth: [ ]
+      operationId: createReader
+      tags: [Readers]
+      summary: Создать читателя
+      description: |
+        Создает карточку читателя с id и переданным requestBody.
+        Поле registered_at вычисляется сервером.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReaderRequest"
+      responses:
+        "201":
+          description: Читатель создан
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reader"
+              examples:
+                readerCreationExample:
+                  summary: Пример создания читателя
+                  value:
+                    full_name: "Петров Петр Петрович"
+                    email: "petrov@mail.ru"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /readers/{id}:
+    get:
+      operationId: getReader
+      tags: [Readers]
+      summary: Получить читателя по id
+      description: |
+        Возвращает карточку читателя со всеми полями (включая id и registered_at).
+      parameters:
+        - $ref: "#/components/parameters/Reader_id"
+      responses:
+        "200":
+          description: Читатель найден
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reader"
+              examples:
+                readerExample:
+                  summary: Пример читателя
+                  value:
+                    id: 1
+                    full_name: "Иванов Иван Иванович"
+                    email: "ivanov@mail.ru"
+                    registered_at: "2026-05-20T16:30:00+03:00"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      security:
+        - BearerAuth: [ ]
+      operationId: replaceReader
+      summary: Заменить читателя по id
+      tags: [Readers]
+      description: |
+        Заменяет целиком карточку книги на переданный requestBody.
+        Поля id, registered_at не передаются.
+      parameters:
+        - $ref: "#/components/parameters/Reader_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateReaderRequest"
+      responses:
+        "200":
+          description: Читатель заменен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reader"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    patch:
+      security:
+        - BearerAuth: [ ]
+      operationId: updateReader
+      tags: [Readers]
+      summary: Обновить читателя по id
+      description: |
+        Меняет выборочные поля карточки читателя на переданный requestBody.
+      parameters:
+        - $ref: "#/components/parameters/Reader_id"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateReaderRequest"
+      responses:
+        "200":
+          description: Читатель изменен
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Reader"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+    delete:
+      security:
+        - BearerAuth: [ ]
+      operationId: deleteReader
+      tags: [Readers]
+      summary: Удалить читателя по id
+      description: |
+        Удаляет карточку читателя
+        Нельзя удалить читателя с активными выдачами
+      parameters:
+        - $ref: "#/components/parameters/Reader_id"
+      responses:
+        "204":
+          description: Читатель удален
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/BusinessRuleViolation"
+  /loans:
+    get:
+      operationId: getLoanList
+      tags: [Loans]
+      summary: Получить список выдач
+      description: Возвращает список всех выдач
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Sort"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ active, returned, overdue ]
+      responses:
+        "200":
+          description: Список выдачи книг
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoanList"
+              examples:
+                loanListExample:
+                  summary: Пример списка выдач
+                  value:
+                    data:
+                      - id: 101
+                        book_id: 42
+                        reader_id: 7
+                        loaned_at: "2026-09-20T09:00:00Z"
+                        due_date: "2026-10-20T09:00:00Z"
+                        returned_at: null
+                      - id: 102
+                        book_id: 43
+                        reader_id: 8
+                        loaned_at: "2026-08-01T12:15:00Z"
+                        due_date: "2026-09-01T12:15:00Z"
+                        returned_at: "2026-08-30T16:40:00Z"
+                    pagination:
+                      total: 2
+                      limit: 20
+                      offset: 0
+                      has_more: false
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+    post:
+      security:
+        - BearerAuth: [ ]
+      operationId: createLoan
+      tags: [Loans]
+      summary: Создать выдачу
+      description: |
+        Создает карточку выдачи с id и переданным requestBody.
+        Поле loaned_at, returned_at вычисляется сервером.
+        Создание выдачи только при available_copies > 0
+        Может быть не более 5 активных выдач на читателя
+        due_date новой выдачи должна быть позже текущей даты
+        Обеспечивает идемпотентность:
+          повторный запрос с тем же ключом и телом возвращает
+          ранее сохранённый ответ (replay). Срок хранения — 24 часа.
+          Тот же ключ с другим телом — 409 IDEMPOTENCY_MISMATCH.
+        При конкурентных повторах с тем же Idempotency-Key сервер
+          гарантирует создание только одной выдачи
+      parameters:
+        - $ref: "#/components/parameters/Idempotency_key"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLoanRequest"
+      responses:
+        "201":
+          description: Выдача создана
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+              examples:
+                loanExample:
+                  summary: Пример создания выдачи
+                  value:
+                    book_id: 5
+                    reader_id: 6
+                    due_date: "2026-12-30T23:59:00+03:00"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/IdempotencyMismatch"
+        "422":
+          $ref: "#/components/responses/ValidationError"
+  /loans/{id}:
+    get:
+      operationId: getLoan
+      tags: [Loans]
+      summary: Получить выдачу по id
+      description: Возвращает карточку выдачи со всеми полями (включая id, loaned_at и returned_at).
+      parameters:
+        - $ref: "#/components/parameters/Loan_id"
+      responses:
+        "200":
+          description: Выдача найдена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+              examples:
+                loanExample:
+                  summary: Пример выдачи
+                  value:
+                    id: 2
+                    book_id: 3
+                    reader_id: 4
+                    loaned_at: "2026-05-20T16:30:00+03:00"
+                    due_date: "2027-05-20T16:30:00+03:00"
+                    returned_at: null
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /loans/{id}/return:
+    post:
+      security:
+        - BearerAuth: [ ]
+      operationId: returnLoan
+      tags: [Loans]
+      summary: Вернуть книгу
+      description: |
+        Возврат книги по id
+        Обновление статуса returned_at на now()
+      parameters:
+        - $ref: "#/components/parameters/Loan_id"
+      responses:
+        "200":
+          description: Книга возвращена
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+        "400":
+          $ref: "#/components/responses/InvalidRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+components:
+  schemas:
+    Book:
+      type: object
+      required: [id, title, author, isbn, published_year, total_copies, available_copies]
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        isbn:
+          type: string
+          pattern: '^(?:\d{10}|\d{13})$'
+        published_year:
+          type: integer
+          minimum: 1000
+          maximum: 2026
+        total_copies:
+          type: integer
+          minimum: 0
+        available_copies:
+          type: integer
+          minimum: 0
+    CreateBookRequest:
+      type: object
+      additionalProperties: false
+      required: [title, author, isbn, published_year, total_copies]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        isbn:
+          type: string
+          pattern: '^(?:\d{10}|\d{13})$'
+        published_year:
+          type: integer
+          minimum: 1000
+          maximum: 2026
+        total_copies:
+          type: integer
+          minimum: 0
+    UpdateBookRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        isbn:
+          type: string
+          pattern: '^(?:\d{10}|\d{13})$'
+        published_year:
+          type: integer
+          minimum: 1000
+          maximum: 2026
+        total_copies:
+          type: integer
+          minimum: 0
+    BookList:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Book"}
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    Reader:
+      type: object
+      required: [ id, full_name, email, registered_at ]
+      properties:
+        id:
+          type: integer
+        full_name:
+          deprecated: true
+          description: Будет заменено на first_name, last_name
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        registered_at:
+          type: string
+          format: date-time
+    CreateReaderRequest:
+      type: object
+      additionalProperties: false
+      required: [full_name, email ]
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+    UpdateReaderRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        full_name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+    ReaderList:
+      type: object
+      required: [data, pagination]
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Reader" }
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    Loan:
+      type: object
+      required: [ id, book_id, reader_id, loaned_at, due_date, returned_at ]
+      properties:
+        id:
+          type: integer
+        book_id:
+          type: integer
+        reader_id:
+          type: integer
+        loaned_at:
+          type: string
+          format: date-time
+        due_date:
+          type: string
+          format: date-time
+        returned_at:
+          type: string
+          format: date-time
+          nullable: true
+    CreateLoanRequest:
+      type: object
+      required: [ book_id, reader_id, due_date ]
+      additionalProperties: false
+      properties:
+        book_id:
+          type: integer
+        reader_id:
+          type: integer
+        due_date:
+          type: string
+          format: date-time
+    LoanList:
+      type: object
+      required: [ data, pagination ]
+      properties:
+        data:
+          type: array
+          items: { $ref: "#/components/schemas/Loan" }
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+    Pagination:
+      type: object
+      required: [ total, limit, offset, has_more ]
+      properties:
+        total: { type: integer, minimum: 0 }
+        limit: { type: integer, minimum: 1 }
+        offset: { type: integer, minimum: 0 }
+        has_more: { type: boolean }
+      example:
+        total: 154
+        limit: 20
+        offset: 40
+        has_more: true
+    ErrorResponse:
+      type: object
+      required: [ error ]
+      properties:
+        error:
+          type: object
+          required: [ code, message, request_id ]
+          properties:
+            code:
+              type: string
+              enum:
+                - INVALID_REQUEST
+                - NOT_FOUND
+                - VALIDATION_ERROR
+                - CONFLICT
+                - BUSINESS_RULE_VIOLATION
+                - IDEMPOTENCY_MISMATCH
+              description: Код ошибки
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              minLength: 1
+              description: Описание ошибки
+              example: Некорректные данные запроса
+            details:
+              type: array
+              description: Детали по конкретным полям
+              items:
+                type: object
+                required: [ field, issue, message ]
+                properties:
+                  field:
+                    type: string
+                    example: title
+                  issue:
+                    type: string
+                    example: minLength
+                  message:
+                    type: string
+                    example: Название не может быть пустым
+            request_id:
+              type: string
+              description: ID запроса для поиска в логах
+              example: req_8f3a2b1c
+  responses:
+    InvalidRequest:
+      description: Некорректный url
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            invalidRequestErrorExample:
+              summary: Пример ошибки 400
+              value:
+                error:
+                  code: INVALID_REQUEST
+                  message: "Некорректный запрос"
+                  details:
+                    - field: id
+                      issue: type
+                      message: "id может быть только int"
+                  request_id: "req_8f3a2b1c"
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            notFoundErrorExample:
+              summary: Пример ошибки 404
+              value:
+                error:
+                  code: NOT_FOUND
+                  message: "Ресурс не найден"
+                  request_id: "req_8f3a2b1c"
+    ValidationError:
+      description: Ошибка валидации
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            validationErrorExample:
+              summary: Пример ошибки 422
+              value:
+                error:
+                  code: VALIDATION_ERROR
+                  message: "Некорректные данные запроса"
+                  details:
+                    - field: title
+                      issue: minLength
+                      message: "Название не может быть пустым"
+                    - field: total_copies
+                      issue: minimum
+                      message: "Количество копий не может быть отрицательным"
+                  request_id: "req_8f3a2b1c"
+    Conflict:
+      description: Конфликт состояния
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            conflictErrorExample:
+              summary: Пример ошибки 409
+              value:
+                error:
+                  code: CONFLICT
+                  message: "Конфликт состояния"
+                  request_id: "req_8f3a2b1c"
+    BusinessRuleViolation:
+      description: Нарушение бизнес правила
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            businessRuleViolationErrorExample:
+              summary: Пример ошибки 409
+              value:
+                error:
+                  code: BUSINESS_RULE_VIOLATION
+                  message: "Нарушение бизнес правил"
+                  request_id: "req_8f3a2b1c"
+    IdempotencyMismatch:
+      description: Нарушение идемпотентности
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+          examples:
+            idempotencyMismatchErrorExample:
+              summary: Пример ошибки 409
+              value:
+                error:
+                  code: IDEMPOTENCY_MISMATCH
+                  message: "Нарушение идемпотентности"
+                  request_id: "req_8f3a2b1c"
+  parameters:
+    Book_id:
+      name: id
+      in: path
+      required: true
+      schema: {type: integer}
+    Reader_id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    Loan_id:
+      name: id
+      in: path
+      required: true
+      schema: { type: integer }
+    Limit:
+      name: limit
+      in: query
+      schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+    Offset:
+      name: offset
+      in: query
+      schema: { type: integer, minimum: 0, default: 0 }
+    Sort:
+      name: sort
+      in: query
+      schema: { type: string, example: "-created_at" }
+    Idempotency_key:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema: { type: string, format: uuid }
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
