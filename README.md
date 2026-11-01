@@ -11,4 +11,4 @@
 2. Создайте файл `.env` на основе `.env.example`
 
 3. Запустите сервер:
-   `fastapi dev main.py`
+   `fastapi dev app/main.py`
