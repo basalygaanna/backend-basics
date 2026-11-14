@@ -1,10 +1,10 @@
 import datetime as dt
+from enum import Enum
+from typing import Annotated
 
-from fastapi import FastAPI, Depends, status, HTTPException, Query, Response
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Annotated
-from enum import Enum
 
 app = FastAPI(
     title="Учёт заказов кофейни",
@@ -29,37 +29,63 @@ class Status(str, Enum):
 
 class Order(BaseModel):
     id: int = Field(gt=0, description='ID заказа', examples=[1, 2])
-    drink: str = Field(min_length=1, description='Название напитка',
-                       examples=['Латте', 'Раф'])
+    drink: str = Field(
+        min_length=1,
+        description='Название напитка',
+        examples=['Латте', 'Раф']
+    )
     size: Size = Field(description='Размер напитка', examples=['s', 'm'])
     quantity: int = Field(gt=0, description='Количество', examples=[4, 5])
-    customer_name: str | None = Field(default=None, description='Имя клиента',
-                                      examples=['Анна', 'Наталья'])
-    status: Status = Field(description="Статус заказа",
-                           examples=['В ожидании', 'Готов'])
-    created_at: dt.datetime = Field(description="Время создания",
-                                    examples=['2026-10-31T20:40:52.344Z',
-                                              '2026-10-30T20:40:52.344Z]'])
+    customer_name: str | None = Field(
+        default=None,
+        description='Имя клиента',
+        examples=['Анна', 'Наталья']
+    )
+    status: Status = Field(
+        description="Статус заказа",
+        examples=['В ожидании', 'Готов']
+    )
+    created_at: dt.datetime = Field(
+        description="Время создания",
+        examples=['2026-10-31T20:40:52.344Z', '2026-10-30T20:40:52.344Z]']
+    )
 
 
 class OrderCreate(BaseModel):
-    drink: str = Field(min_length=1, description='Название напитка',
-                       examples=['Латте', 'Раф'])
-    size: Size = Field(description='Размер напитка', examples=['s', 'm'])
+    drink: str = Field(
+        min_length=1,
+        description='Название напитка',
+        examples=['Латте', 'Раф']
+    )
+    size: Size = Field(
+        description='Размер напитка',
+        examples=['s', 'm']
+    )
     quantity: int = Field(gt=0, description='Количество', examples=[4, 5])
-    customer_name: str | None = Field(default=None, description='Имя клиента',
-                                      examples=['Анна', 'Наталья'])
+    customer_name: str | None = Field(
+        default=None,
+        description='Имя клиента',
+        examples=['Анна', 'Наталья']
+    )
 
 
 class OrderUpdate(BaseModel):
-    drink: str | None = Field(default=None, min_length=1,
-                              description='Название напитка',
-                              examples=['Латте', 'Раф'])
+    drink: str | None = Field(
+        default=None, min_length=1,
+        description='Название напитка',
+        examples=['Латте', 'Раф']
+    )
     size: Size | None = None
-    quantity: int | None = Field(default=None, gt=0, description='Количество',
-                                 examples=[4, 5])
-    customer_name: str | None = Field(default=None, description='Имя клиента',
-                                      examples=['Анна', 'Наталья'])
+    quantity: int | None = Field(
+        default=None, gt=0,
+        description='Количество',
+        examples=[4, 5]
+    )
+    customer_name: str | None = Field(
+        default=None,
+        description='Имя клиента',
+        examples=['Анна', 'Наталья']
+    )
     status: Status | None = None
 
 
@@ -113,12 +139,19 @@ def create_order(order: OrderCreate):
 )
 def list_orders(
         settings: SettingsDep,
-        status_filter: Status | None = Query(default=None,
-                                             description='Фильтр по статусу'),
-        sort_by: str | None = Query(default=None,
-                                    description='Сортировка: created_at или drink'),
-        limit: int | None = Query(default=None, ge=1,
-                                  description='Количество записей'),
+        status_filter: Status | None = Query(
+            default=None,
+            description='Фильтр по статусу'
+        ),
+        sort_by: str | None = Query(
+            default=None,
+            description='Сортировка: created_at или drink'
+        ),
+        limit: int | None = Query(
+            default=None,
+            ge=1,
+            description='Количество записей'
+        ),
         offset: int = Query(default=0, ge=0, description='Смещение', )
 ):
     result = orders.copy()
@@ -128,8 +161,10 @@ def list_orders(
         result.sort(key=lambda x: x['created_at'])
     elif sort_by == 'drink':
         result.sort(key=lambda x: x['drink'])
-    return result[offset: offset + min(limit or settings.default_page_size,
-                                       settings.max_page_size)]
+    return result[offset: offset + min(
+        limit or settings.default_page_size,
+        settings.max_page_size
+    )]
 
 
 @app.get(
