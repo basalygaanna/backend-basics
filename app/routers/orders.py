@@ -24,13 +24,21 @@ def create_order(service: ServiceDep, order: OrderCreate):
 def list_orders(
         service: ServiceDep,
         pagination: PaginationDep,
-        status_filter: OrderStatus | None = Query(default=None,
-                                                  description='Фильтр по статусу'),
-        sort_by: str | None = Query(default=None,
-                                    description='Сортировка: created_at или drink'),
+        status_filter: OrderStatus | None = Query(
+            default=None,
+            description='Фильтр по статусу'
+        ),
+        sort_by: str | None = Query(
+            default=None,
+            description='Сортировка: created_at или drink'
+        ),
 ):
-    return service.list_orders(status_filter, sort_by, pagination.limit,
-                               pagination.offset)
+    return service.list_orders(
+        status_filter,
+        sort_by,
+        pagination.limit,
+        pagination.offset
+    )
 
 
 @router.get(

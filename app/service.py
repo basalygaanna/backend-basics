@@ -38,8 +38,10 @@ class OrderService:
         elif sort_by == 'drink':
             result.sort(key=lambda x: x['drink'])
         return result[
-               offset: offset + min(limit or self.settings.default_page_size,
-                                    self.settings.max_page_size)]
+               offset: offset + min(
+                   limit or self.settings.default_page_size,
+                   self.settings.max_page_size
+               )]
 
     def get_order(self, order_id: int) -> dict:
         res = self.repository.get_by_id(order_id)
@@ -53,8 +55,10 @@ class OrderService:
             raise OrderNotFoundError(order_id)
         if order['status'] == OrderStatus.completed:
             raise OrderAlreadyCompleted(order_id)
-        return self.repository.update(order_id, part_order.model_dump(
-            exclude_unset=True))
+        return self.repository.update(
+            order_id,
+            part_order.model_dump(exclude_unset=True)
+        )
 
     def delete_order(self, order_id: int):
         order = self.repository.get_by_id(order_id)

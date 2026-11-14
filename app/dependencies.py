@@ -9,7 +9,11 @@ from .service import OrderService
 
 
 class PaginationParams(BaseModel):
-    limit: int | None = Field(default=None, ge=1, description='Количество записей')
+    limit: int | None = Field(
+        default=None,
+        ge=1,
+        description='Количество записей'
+    )
     offset: int = Field(default=0, ge=0, description='Смещение')
 
 
@@ -26,8 +30,12 @@ def get_service(
 
 
 def pagination_params(
-    limit: int | None = Query(default=None, ge=1, description='Количество записей'),
-    offset: int = Query(default=0, ge=0, description='Смещение'),
+        limit: int | None = Query(
+            default=None,
+            ge=1,
+            description='Количество записей'
+        ),
+        offset: int = Query(default=0, ge=0, description='Смещение'),
 ) -> PaginationParams:
     return PaginationParams(limit=limit, offset=offset)
 

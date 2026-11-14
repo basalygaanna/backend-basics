@@ -15,7 +15,10 @@ app.include_router(router)
 
 
 @app.exception_handler(OrderNotFoundError)
-async def order_not_found_handler(request: Request, exc: OrderNotFoundError):
+async def order_not_found_handler(
+        request: Request,
+        exc: OrderNotFoundError
+):
     return JSONResponse(
         status_code=404,
         content={"detail": str(exc)}
@@ -23,8 +26,10 @@ async def order_not_found_handler(request: Request, exc: OrderNotFoundError):
 
 
 @app.exception_handler(OrderAlreadyCompleted)
-async def order_already_completed_handler(request: Request,
-                                          exc: OrderAlreadyCompleted):
+async def order_already_completed_handler(
+        request: Request,
+        exc: OrderAlreadyCompleted
+):
     return JSONResponse(
         status_code=409,
         content={"detail": str(exc)}
@@ -46,5 +51,7 @@ async def read_root():
     summary='Информация о сервисе',
 )
 def get_info(settings: SettingsDep, service: ServiceDep):
-    return {'app_name': settings.app_name,
-            'quantity': service.get_quantity()}
+    return {
+        'app_name': settings.app_name,
+        'quantity': service.get_quantity()
+    }
