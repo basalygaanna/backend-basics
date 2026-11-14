@@ -51,7 +51,7 @@ python -m alembic current
 ### 5. Запуск приложения
 
 ```bash
-uvicorn app.main:app --reload
+uvicorn app.main:app
 ```
 
 Swagger: http://127.0.0.1:8000/docs
@@ -192,7 +192,7 @@ for u in users:
 users = session.scalars(
     select(User).options(selectinload(User.orders))
 ).all()
-for u in users:
+for user in users:
     _ = [o.amount for o in u.orders]
 ```
 

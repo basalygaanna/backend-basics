@@ -1,7 +1,7 @@
-from fastapi import APIRouter, status, HTTPException
+from fastapi import APIRouter, HTTPException, status
 
 from app.dependencies import OrderServiceDep
-from app.exceptions import UserNotFoundException, OrderException
+from app.exceptions import OrderException, UserNotFoundException
 from app.schemas import OrderCreate, OrderResponse
 
 router = APIRouter(prefix="/orders", tags=["Заказы"])

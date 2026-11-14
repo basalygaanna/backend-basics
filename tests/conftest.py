@@ -1,14 +1,17 @@
 import pytest
 from sqlalchemy import create_engine
+from sqlalchemy.engine import make_url
 from sqlalchemy.orm import sessionmaker
 
-from app.database import Base, DATABASE_URL
-import app.models
+import app.models  # noqa: F401
+from app.database import DATABASE_URL, Base
+
+TEST_DATABASE_URL = make_url(DATABASE_URL).set(database="app_test")
 
 
 @pytest.fixture(scope="session")
 def engine():
-    eng = create_engine(DATABASE_URL)
+    eng = create_engine(TEST_DATABASE_URL)
     Base.metadata.create_all(eng)
     yield eng
     Base.metadata.drop_all(eng)

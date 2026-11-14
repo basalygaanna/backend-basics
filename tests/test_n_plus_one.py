@@ -1,11 +1,9 @@
 from decimal import Decimal
 
-import pytest
 from sqlalchemy import event, select
 from sqlalchemy.orm import selectinload, sessionmaker
 
-from app.database import DATABASE_URL
-from app.models import User, Order
+from app.models import Order, User
 from app.schemas import OrderStatus
 
 

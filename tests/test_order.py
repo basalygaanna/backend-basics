@@ -3,9 +3,8 @@ from decimal import Decimal
 import pytest
 from sqlalchemy.orm import sessionmaker
 
-from app.database import DATABASE_URL
-from app.models import User, Order
-from app.repository import UserRepository, OrderRepository
+from app.models import Order, User
+from app.repository import OrderRepository, UserRepository
 from app.service import OrderService
 
 

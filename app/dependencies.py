@@ -1,10 +1,12 @@
-from typing import Iterator, Annotated
+from collections.abc import Iterator
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.database import SessionLocal
+from app.repository import OrderRepository, UserRepository
 from app.service import OrderService
-from app.repository import UserRepository, OrderRepository
 
 
 def get_db() -> Iterator[Session]:

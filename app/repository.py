@@ -1,6 +1,6 @@
 from sqlalchemy import select
 
-from app.models import User, Order
+from app.models import Order, User
 
 
 class UserRepository:

@@ -11,11 +11,11 @@ class OrderService:
 
     def create_order(self, user_id, amount) -> Order:
         if amount <= 0:
-            raise OrderException("Сумма не может быть отрицательной")
+            raise OrderException("Сумма должна быть положительной")
         with self.session.begin():
             user = self.user_repository.get_by_id(user_id)
             if user is None:
-                raise UserNotFoundException(user_id)
+                raise UserNotFoundException(f'Пользователь {user_id} не найден')
 
             if user.balance < amount:
                 raise OrderException("Недостаточно средств")
